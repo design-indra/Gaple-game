@@ -3,24 +3,28 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 import { v4 as uuidv4 } from 'uuid'
+import { getProfile, formatCoins, MIN_COINS_TO_PLAY, BET_PER_PLAYER, claimDailyBonus } from '../lib/coins'
 
 export default function LobbyPage() {
   const router = useRouter()
   const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
   const [rooms, setRooms] = useState([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
+  const [dailyMsg, setDailyMsg] = useState('')
 
   useEffect(() => {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.push('/'); return }
       setUser(session.user)
+      const prof = await getProfile(session.user.id)
+      setProfile(prof)
       fetchRooms()
     }
     init()
 
-    // Realtime rooms update
     const channel = supabase
       .channel('rooms-list')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, fetchRooms)
@@ -82,7 +86,19 @@ export default function LobbyPage() {
     router.push('/')
   }
 
-  const username = user?.user_metadata?.username || user?.email?.split('@')[0]
+  const username = profile?.username || user?.user_metadata?.username || user?.email?.split('@')[0]
+
+  const handleDailyBonus = async () => {
+    if (!user) return
+    const result = await claimDailyBonus(user.id)
+    if (result.success) {
+      setDailyMsg(`+${formatCoins(result.amount)} koin! Total: ${formatCoins(result.newCoins)}`)
+      setProfile(p => ({ ...p, coins: result.newCoins }))
+    } else {
+      setDailyMsg(result.message)
+    }
+    setTimeout(() => setDailyMsg(''), 3000)
+  }
 
   return (
     <>
@@ -91,6 +107,58 @@ export default function LobbyPage() {
         <div className="lobby-header">
           <h1 className="lobby-title">🎴 GAPLE ONLINE</h1>
           <p className="lobby-user">Selamat datang, <strong style={{ color: 'var(--gold-light)' }}>{username}</strong></p>
+
+          {/* Coin display */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 12, marginTop: 12, flexWrap: 'wrap',
+          }}>
+            <div style={{
+              background: 'rgba(212,160,23,0.12)',
+              border: '1px solid rgba(212,160,23,0.4)',
+              borderRadius: 20, padding: '6px 18px',
+              fontSize: '1rem', color: 'var(--gold-light)',
+              fontWeight: 700, letterSpacing: 1,
+            }}>
+              🪙 {formatCoins(profile?.coins ?? 0)}
+            </div>
+
+            <button
+              onClick={handleDailyBonus}
+              style={{
+                background: 'rgba(39,174,96,0.15)',
+                border: '1px solid rgba(39,174,96,0.4)',
+                borderRadius: 20, padding: '6px 16px',
+                color: '#27ae60', fontSize: '0.78rem',
+                fontWeight: 700, letterSpacing: 1, cursor: 'pointer',
+              }}
+            >
+              🎁 Bonus Harian
+            </button>
+          </div>
+
+          {dailyMsg && (
+            <div style={{
+              marginTop: 8, fontSize: '0.8rem',
+              color: dailyMsg.includes('+') ? '#27ae60' : 'rgba(245,240,232,0.5)',
+              textAlign: 'center',
+            }}>
+              {dailyMsg}
+            </div>
+          )}
+
+          {/* Stats */}
+          {profile && (
+            <div style={{
+              display: 'flex', gap: 16, justifyContent: 'center',
+              marginTop: 8, fontSize: '0.7rem',
+              color: 'rgba(245,240,232,0.4)', letterSpacing: 1,
+            }}>
+              <span>🏆 Menang: {profile.total_wins}</span>
+              <span>🎮 Game: {profile.total_games}</span>
+            </div>
+          )}
+
           <button
             className="btn-secondary"
             onClick={logout}
@@ -103,11 +171,27 @@ export default function LobbyPage() {
         <button
           className="btn-primary"
           onClick={createRoom}
-          disabled={creating}
-          style={{ width: 240, marginBottom: 32 }}
+          disabled={creating || (profile?.coins ?? 0) < MIN_COINS_TO_PLAY}
+          style={{ width: 240, marginBottom: 8 }}
         >
           {creating ? 'Membuat Meja...' : '+ Buat Meja Baru'}
         </button>
+
+        {(profile?.coins ?? 0) < MIN_COINS_TO_PLAY && (
+          <div style={{ color: '#e74c3c', fontSize: '0.75rem', marginBottom: 16 }}>
+            ⚠️ Koin tidak cukup untuk bermain. Klaim bonus harian dulu!
+          </div>
+        )}
+
+        <div style={{
+          background: 'rgba(212,160,23,0.08)',
+          border: '1px solid rgba(212,160,23,0.2)',
+          borderRadius: 8, padding: '6px 16px',
+          fontSize: '0.7rem', color: 'rgba(245,240,232,0.5)',
+          marginBottom: 24, letterSpacing: 1,
+        }}>
+          💰 Taruhan per game: {formatCoins(BET_PER_PLAYER)} koin/pemain
+        </div>
 
         {loading ? (
           <div className="spinner" />

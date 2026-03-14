@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
+import { giveStartingCoins } from '../lib/coins'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -36,10 +37,7 @@ export default function LoginPage() {
         if (err) throw err
         // Insert into profiles table
         if (data.user) {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            username: username.trim(),
-          })
+          await giveStartingCoins(data.user.id, username.trim())
         }
         router.push('/lobby')
       } else {
