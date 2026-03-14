@@ -66,18 +66,23 @@ export default function LobbyPage() {
 
   const joinRoom = async (room) => {
     if (!user) return
-    if (room.status === 'playing') return
-    if (room.players?.length >= 4) return
 
     const username = user.user_metadata?.username || user.email?.split('@')[0] || 'Player'
     const alreadyIn = room.players?.find(p => p.id === user.id)
 
-    if (!alreadyIn) {
-      const seat = room.players?.length || 0
-      const newPlayers = [...(room.players || []), { id: user.id, username, seat }]
-      await supabase.from('rooms').update({ players: newPlayers }).eq('id', room.id)
+    // Kalau sudah di dalam room → langsung masuk tanpa cek status
+    if (alreadyIn) {
+      router.push(`/game/${room.id}`)
+      return
     }
 
+    // Kalau belum di dalam → cek apakah bisa gabung
+    if (room.status === 'playing') return
+    if (room.players?.length >= 4) return
+
+    const seat = room.players?.length || 0
+    const newPlayers = [...(room.players || []), { id: user.id, username, seat }]
+    await supabase.from('rooms').update({ players: newPlayers }).eq('id', room.id)
     router.push(`/game/${room.id}`)
   }
 
@@ -205,7 +210,9 @@ export default function LobbyPage() {
                 const playerCount = room.players?.length || 0
                 const isFull = playerCount >= 4
                 const isPlaying = room.status === 'playing'
-                const canJoin = !isFull && !isPlaying
+                const alreadyIn = room.players?.find(p => p.id === user?.id)
+                // Bisa klik kalau: sudah di dalam room, ATAU belum penuh dan belum main
+                const canJoin = alreadyIn || (!isFull && !isPlaying)
 
                 return (
                   <div
@@ -223,7 +230,7 @@ export default function LobbyPage() {
                         👥 {playerCount}/4
                       </span>
                       <span className={`room-status ${isPlaying ? 'status-playing' : 'status-waiting'}`}>
-                        {isPlaying ? 'Bermain' : isFull ? 'Penuh' : 'Menunggu'}
+                        {alreadyIn ? '↩ Kembali' : isPlaying ? 'Bermain' : isFull ? 'Penuh' : 'Menunggu'}
                       </span>
                     </div>
                   </div>
