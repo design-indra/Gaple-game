@@ -4,7 +4,7 @@
   "description": "Game Gaple Multiplayer Online",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "landscape",
+  "orientation": "portrait",
   "background_color": "#0a150c",
   "theme_color": "#1a5c2e",
   "icons": [
