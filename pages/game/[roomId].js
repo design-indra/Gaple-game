@@ -25,7 +25,6 @@ const PIP_POS = {
   5: [[30,30],[70,30],[50,50],[30,70],[70,70]],
   6: [[30,22],[70,22],[30,50],[70,50],[30,78],[70,78]],
 }
-
 function PipFace({ val }) {
   return (
     <svg width="100%" height="100%" viewBox="0 0 100 100" style={{ display:'block' }}>
@@ -36,89 +35,73 @@ function PipFace({ val }) {
   )
 }
 
-// ─── Kartu di tangan (besar, bisa diklik) ────────────────────────
+// ─── Kartu tangan (besar) ─────────────────────────────────────────
 function HandCard({ tile, selected, valid, myTurn, onClick, onDragStart, onDragEnd }) {
-  const canPlay = myTurn && valid
+  const can = myTurn && valid
   return (
     <div
-      draggable={canPlay}
+      draggable={can}
       onDragStart={e => onDragStart?.(e, tile)}
       onDragEnd={onDragEnd}
       onClick={() => onClick?.(tile)}
       style={{
-        width: 42, height: 76,
-        background: 'linear-gradient(160deg,#fff 60%,#f5f0e0)',
-        borderRadius: 7,
-        border: selected ? '2.5px solid #f0c040'
-               : canPlay  ? '2px solid #27ae60'
-               : '1.5px solid #ccc',
-        display: 'flex', flexDirection: 'column',
-        padding: '3px 2px',
-        cursor: canPlay ? 'pointer' : 'default',
+        width:40, height:72,
+        background:'linear-gradient(160deg,#fff 60%,#f5f0e0)',
+        borderRadius:6,
+        border: selected ? '2.5px solid #f0c040' : can ? '2px solid #27ae60' : '1.5px solid #ccc',
+        display:'flex', flexDirection:'column', padding:'3px 2px',
+        cursor: can ? 'pointer' : 'default',
         opacity: myTurn && !valid ? 0.4 : 1,
-        transform: selected ? 'translateY(-18px) scale(1.06)'
-                 : canPlay  ? 'translateY(-7px)' : 'none',
-        transition: 'all 0.15s',
+        transform: selected ? 'translateY(-16px) scale(1.05)' : can ? 'translateY(-6px)' : 'none',
+        transition:'all 0.15s',
         boxShadow: selected
-          ? '0 0 0 3px rgba(240,192,64,0.5), 0 12px 24px rgba(0,0,0,0.4)'
-          : canPlay
-            ? '0 0 0 2px rgba(39,174,96,0.4), 0 4px 12px rgba(0,0,0,0.25)'
-            : '2px 3px 8px rgba(0,0,0,0.25)',
-        flexShrink: 0, userSelect: 'none',
-        animation: canPlay && !selected ? 'valid-glow 0.9s ease infinite alternate' : 'none',
+          ? '0 0 0 3px rgba(240,192,64,0.5), 0 10px 20px rgba(0,0,0,0.4)'
+          : can ? '0 0 0 2px rgba(39,174,96,0.4), 0 4px 12px rgba(0,0,0,0.25)'
+          : '2px 3px 8px rgba(0,0,0,0.25)',
+        flexShrink:0, userSelect:'none',
+        animation: can && !selected ? 'valid-glow 0.9s ease infinite alternate' : 'none',
       }}
     >
-      <div style={{ flex:1 }}><PipFace val={tile.left} /></div>
-      <div style={{ height:1.5, background:'#aaa', margin:'0 4px' }} />
-      <div style={{ flex:1 }}><PipFace val={tile.right} /></div>
+      <div style={{flex:1}}><PipFace val={tile.left}/></div>
+      <div style={{height:1.5, background:'#aaa', margin:'0 4px'}}/>
+      <div style={{flex:1}}><PipFace val={tile.right}/></div>
     </div>
   )
 }
 
-// ─── Kartu di meja (kecil) ────────────────────────────────────────
+// ─── Kartu meja (kecil) ───────────────────────────────────────────
 function BoardCard({ tile, horiz }) {
-  const w = horiz ? 44 : 24, h = horiz ? 24 : 44
+  const w = horiz ? 42 : 23, h = horiz ? 23 : 42
   return (
     <div style={{
       width:w, height:h,
-      background: 'linear-gradient(160deg,#fff 60%,#f5f0e0)',
-      borderRadius: 3,
-      border: '1px solid #bbb',
-      display: 'flex',
-      flexDirection: horiz ? 'row' : 'column',
-      padding: '1px',
-      boxShadow: '1px 2px 4px rgba(0,0,0,0.2)',
-      flexShrink: 0,
+      background:'linear-gradient(160deg,#fff 60%,#f5f0e0)',
+      borderRadius:3, border:'1px solid #bbb',
+      display:'flex', flexDirection: horiz ? 'row' : 'column',
+      padding:'1px', boxShadow:'1px 2px 4px rgba(0,0,0,0.2)', flexShrink:0,
     }}>
-      <div style={{ flex:1 }}><PipFace val={tile.left} /></div>
-      <div style={{
-        [horiz?'width':'height']: 1.5,
-        [horiz?'height':'width']: '80%',
-        background: '#aaa', flexShrink:0, alignSelf:'center',
-      }} />
-      <div style={{ flex:1 }}><PipFace val={tile.right} /></div>
+      <div style={{flex:1}}><PipFace val={tile.left}/></div>
+      <div style={{[horiz?'width':'height']:1.5,[horiz?'height':'width']:'80%', background:'#aaa', flexShrink:0, alignSelf:'center'}}/>
+      <div style={{flex:1}}><PipFace val={tile.right}/></div>
     </div>
   )
 }
 
-// ─── Kartu tertutup (lawan) ───────────────────────────────────────
-function CardBack({ horiz, small }) {
-  const w = small ? (horiz?36:20) : (horiz?44:24)
-  const h = small ? (horiz?20:36) : (horiz?24:44)
+// ─── Kartu tertutup ───────────────────────────────────────────────
+function CardBack({ horiz }) {
   return (
     <div style={{
-      width:w, height:h,
-      borderRadius: 3,
-      background: 'linear-gradient(135deg,#1e3a8a,#3b6fd4)',
-      border: '1px solid rgba(255,255,255,0.3)',
-      boxShadow: '1px 2px 4px rgba(0,0,0,0.3)',
-      flexShrink: 0,
-      backgroundImage: 'repeating-linear-gradient(45deg,rgba(255,255,255,0.05) 0,rgba(255,255,255,0.05) 2px,transparent 2px,transparent 8px)',
-    }} />
+      width: horiz ? 38 : 21, height: horiz ? 21 : 38,
+      borderRadius:3,
+      background:'linear-gradient(135deg,#1e3a8a,#3b6fd4)',
+      border:'1px solid rgba(255,255,255,0.3)',
+      boxShadow:'1px 2px 4px rgba(0,0,0,0.3)', flexShrink:0,
+      backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,0.05) 0,rgba(255,255,255,0.05) 2px,transparent 2px,transparent 8px)',
+    }}/>
   )
 }
 
-// ─── Avatar bulat pemain ──────────────────────────────────────────
+// ─── Avatar pemain ────────────────────────────────────────────────
 const GRAD = [
   'linear-gradient(135deg,#667eea,#764ba2)',
   'linear-gradient(135deg,#11998e,#38ef7d)',
@@ -126,97 +109,87 @@ const GRAD = [
   'linear-gradient(135deg,#4facfe,#00f2fe)',
 ]
 
-function Avatar({ player, isActive, handCount, coins, isMe, size=52 }) {
-  if (!player) return (
-    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
-      <div style={{
-        width:size, height:size, borderRadius:'50%',
-        border:'2px dashed rgba(255,255,255,0.2)',
-        display:'flex', alignItems:'center', justifyContent:'center',
-        fontSize:'1.2rem', color:'rgba(255,255,255,0.2)',
-      }}>?</div>
-    </div>
-  )
-
-  const gi = player.username.charCodeAt(0) % 4
-
+function Avatar({ player, isActive, handCount, coins, isMe, size=48 }) {
+  const empty = !player
+  const gi = player ? player.username.charCodeAt(0) % 4 : 0
   return (
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:2 }}>
       <div style={{ position:'relative' }}>
         <div style={{
           width:size, height:size, borderRadius:'50%',
-          background: GRAD[gi],
-          border: isActive ? '3px solid #f0c040' : '2.5px solid rgba(255,255,255,0.4)',
+          background: empty ? 'rgba(255,255,255,0.08)' : GRAD[gi],
+          border: isActive ? '3px solid #f0c040' : '2px solid rgba(255,255,255,0.3)',
           display:'flex', alignItems:'center', justifyContent:'center',
-          fontSize: size > 44 ? '1.4rem' : '1rem',
-          fontWeight: 800, color:'#fff',
+          fontSize: size > 44 ? '1.3rem' : '1rem',
+          fontWeight:800, color:'#fff',
           fontFamily:'Playfair Display, serif',
           boxShadow: isActive
             ? '0 0 0 4px rgba(240,192,64,0.3), 0 4px 14px rgba(0,0,0,0.4)'
             : '0 3px 10px rgba(0,0,0,0.3)',
           animation: isActive ? 'pulse-ring 1.5s ease infinite' : 'none',
-          transition: 'border 0.2s',
+          opacity: empty ? 0.3 : 1,
         }}>
-          {player.username[0].toUpperCase()}
+          {empty ? '?' : player.username[0].toUpperCase()}
         </div>
-        {/* Active dot */}
-        {isActive && (
+        {isActive && !empty && (
           <div style={{
             position:'absolute', top:0, right:0,
             width:12, height:12, borderRadius:'50%',
-            background:'#f0c040', border:'2px solid #2d5a1b',
-          }} />
+            background:'#f0c040', border:'2px solid #1a4528',
+          }}/>
         )}
-        {/* Hand count badge */}
+        {!empty && (
+          <div style={{
+            position:'absolute', bottom:-3, right:-5,
+            background:'#c0392b', color:'#fff',
+            borderRadius:8, padding:'0 4px',
+            fontSize:'0.52rem', fontWeight:700,
+            border:'1.5px solid #fff', minWidth:16, textAlign:'center',
+          }}>{handCount}</div>
+        )}
+      </div>
+      {!empty && (
         <div style={{
-          position:'absolute', bottom:-2, right:-4,
-          background:'#c0392b', color:'#fff',
-          borderRadius:8, padding:'0 4px',
-          fontSize:'0.55rem', fontWeight:700,
-          border:'1.5px solid #fff', minWidth:16, textAlign:'center',
+          fontSize:'0.58rem',
+          color: isActive ? '#f0c040' : 'rgba(255,255,255,0.8)',
+          fontWeight: isActive ? 700 : 400,
+          textShadow:'0 1px 3px rgba(0,0,0,0.8)',
+          maxWidth:70, textAlign:'center',
+          whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
         }}>
-          {handCount}
+          {isMe ? `${player.username} ★` : player.username}
         </div>
-      </div>
-
-      {/* Name */}
-      <div style={{
-        fontSize:'0.6rem',
-        color: isActive ? '#f0c040' : 'rgba(255,255,255,0.85)',
-        fontWeight: isActive ? 700 : 400,
-        textShadow:'0 1px 3px rgba(0,0,0,0.8)',
-        maxWidth: 72, textAlign:'center',
-        whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
-      }}>
-        {isMe ? `${player.username} ★` : player.username}
-      </div>
-
-      {/* Coins */}
-      {coins > 0 && (
+      )}
+      {!empty && coins > 0 && (
         <div style={{
-          fontSize:'0.55rem', color:'#f0c040',
+          fontSize:'0.5rem', color:'#f0c040',
           background:'rgba(0,0,0,0.5)',
-          borderRadius:8, padding:'1px 6px',
-          letterSpacing:0.5,
-        }}>
-          🪙 {formatCoins(coins)}
-        </div>
+          borderRadius:8, padding:'1px 5px', letterSpacing:0.5,
+        }}>🪙 {formatCoins(coins)}</div>
       )}
     </div>
   )
 }
 
-// ─── Timer bar ────────────────────────────────────────────────────
-function TimerBar({ secs, total }) {
-  const pct = (secs / total) * 100
-  const color = secs <= 5 ? '#e74c3c' : secs <= 10 ? '#f39c12' : '#27ae60'
+// ─── Timer ring kecil ─────────────────────────────────────────────
+function TimerCircle({ secs, total }) {
+  const r=14, c=2*Math.PI*r
+  const col = secs<=5?'#e74c3c':secs<=10?'#f39c12':'#27ae60'
   return (
-    <div style={{ width:'100%', height:4, background:'rgba(255,255,255,0.1)', borderRadius:2 }}>
+    <div style={{ position:'relative', width:34, height:34 }}>
+      <svg width={34} height={34} style={{ transform:'rotate(-90deg)' }}>
+        <circle cx={17} cy={17} r={r} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth={2.5}/>
+        <circle cx={17} cy={17} r={r} fill="none" stroke={col} strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeDasharray={`${c*(secs/total)} ${c}`}
+          style={{transition:'stroke-dasharray 0.5s linear,stroke 0.3s'}}/>
+      </svg>
       <div style={{
-        width:`${pct}%`, height:'100%',
-        background: color, borderRadius:2,
-        transition:'width 0.5s linear, background 0.3s',
-      }} />
+        position:'absolute', inset:0, display:'flex',
+        alignItems:'center', justifyContent:'center',
+        fontSize:'0.65rem', fontWeight:700,
+        color: secs<=5?'#e74c3c':secs<=10?'#f39c12':'#fff',
+      }}>{secs}</div>
     </div>
   )
 }
@@ -260,7 +233,6 @@ export default function GamePage() {
     notifTm.current = setTimeout(() => setNotif(null), 2800)
   }, [])
 
-  // ── Init ──
   useEffect(() => {
     if (!roomId) return
     supabase.auth.getSession().then(({ data:{session} }) => {
@@ -268,18 +240,16 @@ export default function GamePage() {
       setUser(session.user)
       supabase.from('rooms').select('*').eq('id',roomId).single().then(async ({data}) => {
         if (!data) { router.push('/lobby'); return }
-        setRoom(data)
-        if (data.game_state) setGameState(data.game_state)
+        setRoom(data); if (data.game_state) setGameState(data.game_state)
         setMyPlayerIdx(data.players?.findIndex(p=>p.id===session.user.id)??-1)
         if (data.players?.length) {
           const profs = await getProfiles(data.players.map(p=>p.id))
-          const map = {}; profs.forEach(p => { map[p.id] = p }); setProfiles(map)
+          const map = {}; profs.forEach(p => { map[p.id]=p }); setProfiles(map)
         }
       })
     })
   }, [roomId])
 
-  // ── Realtime ──
   useEffect(() => {
     if (!roomId||!user) return
     const ch = supabase.channel(`room:${roomId}`)
@@ -290,7 +260,7 @@ export default function GamePage() {
           setMyPlayerIdx(myIdx)
           if (upd.players?.length) {
             const profs = await getProfiles(upd.players.map(p=>p.id))
-            const map = {}; profs.forEach(p => { map[p.id] = p }); setProfiles(map)
+            const map = {}; profs.forEach(p => { map[p.id]=p }); setProfiles(map)
           }
           if (upd.game_state) {
             const prev = gsRef.current
@@ -303,7 +273,7 @@ export default function GamePage() {
                 setCoinsAwarded(true)
                 await processGameCoins(upd.players, upd.game_state.winner, roomId)
                 const profs = await getProfiles([user.id])
-                if (profs[0]) setProfiles(p => ({...p,[user.id]:profs[0]}))
+                if (profs[0]) setProfiles(p=>({...p,[user.id]:profs[0]}))
               }
             }
             setGameState(upd.game_state)
@@ -315,7 +285,6 @@ export default function GamePage() {
     return () => supabase.removeChannel(ch)
   }, [roomId, user])
 
-  // ── Timer ──
   useEffect(() => {
     if (!gameState||gameState.winner>=0) { clearInterval(timerRef.current); return }
     const deadline = gameState.turn_deadline
@@ -419,7 +388,7 @@ export default function GamePage() {
     await supabase.from('rooms').update({status:'playing',game_state:{...state,turn_deadline:deadline}}).eq('id',roomId)
   }
 
-  // Slot display: 0=me(bawah), 1=kiri, 2=atas, 3=kanan
+  // Slot: 0=saya(bawah), 1=kiri, 2=atas, 3=kanan
   const dp    = s => myPlayerIdx<0?players[s]||null:players[(myPlayerIdx+s)%Math.max(players.length,1)]||null
   const dpIdx = s => (myPlayerIdx+s)%Math.max(players.length,1)
   const hc    = s => gameState?.hands?.[dpIdx(s)]?.length||0
@@ -439,15 +408,13 @@ export default function GamePage() {
       <>
         <Head><title>Meja {roomId} – Gaple</title></Head>
         <div style={{
-          width:'100vw', height:'100vh',
+          width:'100vw',height:'100vh',position:'fixed',top:0,left:0,
           background:'radial-gradient(ellipse at center,#2d5a1b 0%,#1a3d0a 100%)',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          padding:16,
+          display:'flex',alignItems:'center',justifyContent:'center',padding:16,
         }}>
           <div style={{
-            background:'rgba(0,0,0,0.75)', border:'1.5px solid rgba(212,160,23,0.4)',
-            borderRadius:20, padding:'32px 24px', textAlign:'center',
-            width:'100%', maxWidth:380,
+            background:'rgba(0,0,0,0.75)',border:'1.5px solid rgba(212,160,23,0.4)',
+            borderRadius:20,padding:'32px 24px',textAlign:'center',width:'100%',maxWidth:360,
           }}>
             <div style={{fontSize:'1.8rem',fontFamily:'Playfair Display,serif',color:'#f0c040',marginBottom:6}}>🎴 Gaple Online</div>
             <div style={{fontSize:'0.7rem',color:'rgba(245,240,232,0.4)',letterSpacing:2,marginBottom:4}}>KODE MEJA</div>
@@ -457,14 +424,9 @@ export default function GamePage() {
               {Array.from({length:4}).map((_,i)=>{
                 const p=players[i]
                 return (
-                  <div key={i} style={{
-                    width:64,height:64,borderRadius:12,
-                    border:p?'2px solid #f0c040':'2px dashed rgba(212,160,23,0.3)',
-                    display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,
-                    background:p?'rgba(212,160,23,0.1)':'transparent',
-                  }}>
+                  <div key={i} style={{width:64,height:64,borderRadius:12,border:p?'2px solid #f0c040':'2px dashed rgba(212,160,23,0.3)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2,background:p?'rgba(212,160,23,0.1)':'transparent'}}>
                     <div style={{fontSize:'1.2rem',fontWeight:700,color:p?'#f0c040':'rgba(212,160,23,0.3)',fontFamily:'Playfair Display,serif'}}>{p?p.username[0].toUpperCase():'?'}</div>
-                    <div style={{fontSize:'0.5rem',color:p?'rgba(245,240,232,0.7)':'rgba(245,240,232,0.25)',letterSpacing:0.5,maxWidth:58,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p?p.username:'Kosong'}</div>
+                    <div style={{fontSize:'0.5rem',color:p?'rgba(245,240,232,0.7)':'rgba(245,240,232,0.25)',maxWidth:58,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p?p.username:'Kosong'}</div>
                   </div>
                 )
               })}
@@ -492,285 +454,337 @@ export default function GamePage() {
     <>
       <Head><title>🎴 Gaple – {roomId}</title></Head>
 
-      {/* ═══ FULL SCREEN MOBILE LAYOUT ═══ */}
+      {/* ══════════════════════════════════════════
+          FULL SCREEN — background hijau rumput
+      ══════════════════════════════════════════ */}
       <div style={{
         width:'100vw', height:'100vh',
+        position:'fixed', top:0, left:0,
         background:'radial-gradient(ellipse at center,#3a7d1e 0%,#2d5a1b 40%,#1a3d0a 100%)',
-        display:'flex', flexDirection:'column',
-        overflow:'hidden', position:'fixed',
-        top:0, left:0, right:0, bottom:0,
+        display:'grid',
+        gridTemplateRows:'auto 1fr auto',
+        overflow:'hidden',
         fontFamily:'Josefin Sans, sans-serif',
       }}>
 
-        {/* ── TOP BAR ── */}
+        {/* ══ ROW 1: TOP BAR ══ */}
         <div style={{
           display:'flex', alignItems:'center', justifyContent:'space-between',
-          padding:'8px 12px 4px',
-          background:'rgba(0,0,0,0.3)',
+          padding:'8px 12px',
+          background:'rgba(0,0,0,0.35)',
           borderBottom:'1px solid rgba(255,255,255,0.06)',
-          flexShrink:0, zIndex:30,
         }}>
-          {/* Menu button */}
-          <button onClick={()=>setMenuOpen(o=>!o)} style={{
-            width:36,height:36,borderRadius:9,
-            background:'rgba(0,0,0,0.5)',border:'1px solid rgba(255,255,255,0.15)',
-            color:'#fff',fontSize:'1rem',cursor:'pointer',
-            display:'flex',alignItems:'center',justifyContent:'center',
-          }}>{menuOpen?'✕':'☰'}</button>
+          {/* ☰ Menu pojok kiri atas */}
+          <div style={{ position:'relative' }}>
+            <button
+              onClick={()=>setMenuOpen(o=>!o)}
+              style={{
+                width:38,height:38,borderRadius:9,
+                background:'rgba(0,0,0,0.55)',
+                border:'1.5px solid rgba(255,255,255,0.15)',
+                color:'#fff',fontSize:'1rem',cursor:'pointer',
+                display:'flex',alignItems:'center',justifyContent:'center',
+              }}
+            >
+              {menuOpen ? '✕' : '☰'}
+            </button>
 
-          {/* Turn indicator */}
+            {/* Dropdown menu */}
+            {menuOpen && (
+              <div style={{
+                position:'absolute',top:46,left:0,
+                background:'rgba(6,16,10,0.97)',
+                border:'1px solid rgba(212,160,23,0.3)',
+                borderRadius:'0 12px 12px 12px',
+                overflow:'hidden',
+                minWidth:175,
+                boxShadow:'4px 8px 24px rgba(0,0,0,0.6)',
+                zIndex:100,
+                animation:'slideDown 0.15s ease',
+              }}>
+                {/* Kode meja */}
+                <div style={{padding:'10px 14px',borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
+                  <div style={{fontSize:'0.55rem',color:'rgba(212,160,23,0.5)',letterSpacing:2}}>KODE MEJA</div>
+                  <div style={{fontSize:'0.85rem',color:'#f0c040',fontWeight:700,letterSpacing:3}}>{roomId}</div>
+                </div>
+                {[
+                  {icon: soundOn?'🔊':'🔇', label: soundOn?'Suara: ON':'Suara: OFF', action:()=>{const n=!soundOn;setSoundOn(n);soundRef.current=n}},
+                  {icon:'💬', label:'Buka Chat', action:()=>{setChatOpen(o=>!o);setMenuOpen(false)}},
+                  {icon:'🔄', label:'Main Lagi', action:()=>{setMenuOpen(false);resetGame()}, hide: !isOver||players[0]?.id!==user?.id},
+                  {icon:'🚪', label:'Kembali ke Lobby', action:backToLobby, danger:true},
+                ].filter(x=>!x.hide).map((item,i)=>(
+                  <button key={i} onClick={()=>{item.action();setMenuOpen(false)}} style={{
+                    display:'flex',alignItems:'center',gap:10,
+                    width:'100%',background:'transparent',border:'none',
+                    padding:'11px 14px',
+                    color:item.danger?'#e74c3c':'#f5f0e8',
+                    cursor:'pointer',fontSize:'0.82rem',letterSpacing:0.3,
+                    textAlign:'left',
+                    borderTop:'1px solid rgba(255,255,255,0.05)',
+                  }}>
+                    <span style={{fontSize:'1rem'}}>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Giliran indicator — tengah */}
           <div style={{
-            background:'rgba(0,0,0,0.6)',border:'1px solid rgba(240,192,64,0.35)',
+            background:'rgba(0,0,0,0.6)',
+            border:`1px solid ${isMyTurn?'rgba(240,192,64,0.5)':'rgba(255,255,255,0.15)'}`,
             borderRadius:16,padding:'4px 14px',
             fontSize:'0.68rem',letterSpacing:1.5,
-            color:isMyTurn?'#f0c040':'rgba(255,255,255,0.7)',
+            color:isMyTurn?'#f0c040':'rgba(255,255,255,0.65)',
             fontWeight:isMyTurn?700:400,
+            flex:1,textAlign:'center',margin:'0 10px',
           }}>
-            {isMyTurn?'⭐ GILIRAN KAMU':`🎴 ${actUser}`}
+            {isMyTurn ? '⭐ GILIRAN KAMU' : `🎴 ${actUser}`}
           </div>
 
-          {/* Timer */}
-          <div style={{
-            width:36,height:36,borderRadius:'50%',
-            background:'rgba(0,0,0,0.5)',border:`2px solid ${timeLeft<=5?'#e74c3c':timeLeft<=10?'#f39c12':'rgba(255,255,255,0.2)'}`,
-            display:'flex',alignItems:'center',justifyContent:'center',
-            fontSize:'0.75rem',fontWeight:700,
-            color:timeLeft<=5?'#e74c3c':timeLeft<=10?'#f39c12':'#fff',
-            transition:'color 0.3s,border-color 0.3s',
-          }}>
-            {isOver?'🏁':timeLeft}
-          </div>
+          {/* Timer pojok kanan atas */}
+          {!isOver
+            ? <TimerCircle secs={timeLeft} total={TURN_SECONDS}/>
+            : <div style={{width:38,height:38,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.2rem'}}>🏁</div>
+          }
         </div>
 
-        {/* Timer bar */}
-        {!isOver && (
-          <div style={{ flexShrink:0, padding:'0 0 2px' }}>
-            <TimerBar secs={timeLeft} total={TURN_SECONDS} />
-          </div>
-        )}
-
-        {/* ── MEJA (area tengah) ── */}
+        {/* ══ ROW 2: MEJA ══ */}
         <div style={{
-          flex:1, display:'flex', flexDirection:'column',
-          minHeight:0, position:'relative',
+          display:'flex',
+          alignItems:'stretch',
+          justifyContent:'center',
+          padding:'6px 8px',
+          minHeight:0,
+          gap:0,
         }}>
 
-          {/* BROWN TABLE */}
+          {/* KOLOM KIRI — avatar kiri */}
           <div style={{
-            flex:1,
-            margin:'8px 10px',
-            background:'linear-gradient(160deg,#c9996b,#b07d50,#c9996b)',
-            borderRadius:24,
-            boxShadow:'0 0 0 4px #8b5e34,0 8px 32px rgba(0,0,0,0.5)',
-            display:'flex', flexDirection:'column',
-            overflow:'hidden', position:'relative',
+            width:68, flexShrink:0,
+            display:'flex',flexDirection:'column',
+            alignItems:'center',justifyContent:'center',
+            gap:4,
+          }}>
+            <Avatar player={dp(1)} isActive={ia(1)} handCount={hc(1)} coins={pc(1)} isMe={false} size={44}/>
+            {dp(1) && (
+              <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                {Array.from({length:Math.min(hc(1),5)}).map((_,i)=><CardBack key={i} horiz={false}/>)}
+              </div>
+            )}
+          </div>
+
+          {/* KOLOM TENGAH — meja coklat */}
+          <div style={{
+            flex:1, minWidth:0,
+            display:'flex',flexDirection:'column',
+            gap:0,
           }}>
 
-            {/* Felt texture */}
-            <div style={{position:'absolute',inset:0,backgroundImage:'repeating-linear-gradient(45deg,rgba(0,0,0,0.025) 0,rgba(0,0,0,0.025) 1px,transparent 1px,transparent 8px)',borderRadius:24,pointerEvents:'none'}}/>
-
-            {/* Dashed border */}
-            <div style={{position:'absolute',inset:12,border:'1.5px dashed rgba(255,255,255,0.1)',borderRadius:16,pointerEvents:'none'}}/>
-
-            {/* ── PEMAIN ATAS ── */}
+            {/* Avatar atas */}
             <div style={{
               display:'flex',flexDirection:'column',alignItems:'center',
-              padding:'10px 8px 6px', flexShrink:0,
+              padding:'4px 0 3px',flexShrink:0,
             }}>
-              <Avatar player={dp(2)} isActive={ia(2)} handCount={hc(2)} coins={pc(2)} isMe={false} size={46} />
+              <Avatar player={dp(2)} isActive={ia(2)} handCount={hc(2)} coins={pc(2)} isMe={false} size={44}/>
               {dp(2) && (
-                <div style={{display:'flex',gap:2,marginTop:4}}>
-                  {Array.from({length:Math.min(hc(2),7)}).map((_,i)=><CardBack key={i} horiz={true} small/>)}
+                <div style={{display:'flex',gap:2,marginTop:3}}>
+                  {Array.from({length:Math.min(hc(2),7)}).map((_,i)=><CardBack key={i} horiz={true}/>)}
                 </div>
               )}
             </div>
 
-            {/* ── TENGAH: kiri | board | kanan ── */}
+            {/* Meja coklat — area board kartu */}
             <div style={{
-              flex:1, display:'flex', flexDirection:'row',
-              minHeight:0, overflow:'hidden',
+              flex:1, minHeight:0,
+              background:'linear-gradient(160deg,#c9996b,#b07d50,#c9996b)',
+              borderRadius:18,
+              boxShadow:'0 0 0 4px #8b5e34,0 6px 24px rgba(0,0,0,0.5)',
+              position:'relative',
+              display:'flex',alignItems:'center',justifyContent:'center',
+              overflow:'hidden',
+              margin:'2px 0',
             }}>
+              {/* Felt texture */}
+              <div style={{position:'absolute',inset:0,backgroundImage:'repeating-linear-gradient(45deg,rgba(0,0,0,0.025) 0,rgba(0,0,0,0.025) 1px,transparent 1px,transparent 8px)',borderRadius:18,pointerEvents:'none'}}/>
+              {/* Dashed border */}
+              <div style={{position:'absolute',inset:10,border:'1.5px dashed rgba(255,255,255,0.12)',borderRadius:12,pointerEvents:'none'}}/>
+              {/* Watermark */}
+              <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',fontSize:'1.4rem',fontFamily:'Playfair Display,serif',fontWeight:900,color:'rgba(0,0,0,0.06)',letterSpacing:5,pointerEvents:'none',userSelect:'none',whiteSpace:'nowrap'}}>GAPLE</div>
 
-              {/* PEMAIN KIRI */}
-              <div style={{
-                width:70, display:'flex', flexDirection:'column',
-                alignItems:'center', justifyContent:'center', gap:4,
-                flexShrink:0, padding:'0 4px',
-              }}>
-                <Avatar player={dp(1)} isActive={ia(1)} handCount={hc(1)} coins={pc(1)} isMe={false} size={44} />
-                {dp(1) && (
-                  <div style={{display:'flex',flexDirection:'column',gap:2}}>
-                    {Array.from({length:Math.min(hc(1),5)}).map((_,i)=><CardBack key={i} horiz={false} small/>)}
-                  </div>
-                )}
-              </div>
-
-              {/* BOARD */}
+              {/* Board cards */}
               <div
                 onDragOver={e=>e.preventDefault()}
                 onDrop={e=>{e.preventDefault();if(dragRef.current){doPlay(dragRef.current,null);dragRef.current=null}}}
                 style={{
-                  flex:1,
-                  display:'flex', flexWrap:'wrap',
-                  alignContent:'center', alignItems:'center',
-                  justifyContent:'center', gap:2,
-                  padding:'4px',
-                  overflow:'hidden',
                   position:'relative',
+                  display:'flex',flexWrap:'wrap',
+                  alignContent:'center',alignItems:'center',
+                  justifyContent:'center',
+                  gap:2,padding:'12px 8px',
+                  width:'100%',height:'100%',
+                  overflow:'hidden',
                 }}
               >
-                {board.length===0?(
+                {board.length===0 ? (
                   <div style={{
                     color:'rgba(0,0,0,0.2)',fontSize:'0.65rem',
                     letterSpacing:2,textTransform:'uppercase',
-                    textAlign:'center',lineHeight:2.5,
-                    fontWeight:600,
+                    textAlign:'center',lineHeight:2.5,fontWeight:600,
                   }}>
-                    {isMyTurn?'Ketuk 2x kartu\nuntuk main':'Menunggu...'}
+                    {isMyTurn?'Ketuk 2x kartu\nuntuk main':'Menunggu\nkartu pertama...'}
                   </div>
                 ):(
                   board.map((tile,i)=>(
-                    <BoardCard key={`${tile.id}-${i}`} tile={tile} horiz={i%4!==0} />
+                    <BoardCard key={`${tile.id}-${i}`} tile={tile} horiz={i%4!==0}/>
                   ))
                 )}
-                {/* Board ends */}
-                {board.length>0&&(
+                {/* Board ends label */}
+                {board.length>0 && (
                   <>
-                    <div style={{position:'absolute',left:2,top:'50%',transform:'translateY(-50%)',background:'rgba(0,0,0,0.55)',borderRadius:5,padding:'2px 5px',fontSize:'0.58rem',color:'#f0c040'}}>←{gameState.boardLeft}</div>
-                    <div style={{position:'absolute',right:2,top:'50%',transform:'translateY(-50%)',background:'rgba(0,0,0,0.55)',borderRadius:5,padding:'2px 5px',fontSize:'0.58rem',color:'#f0c040'}}>{gameState.boardRight}→</div>
+                    <div style={{position:'absolute',left:4,top:'50%',transform:'translateY(-50%)',background:'rgba(0,0,0,0.55)',borderRadius:5,padding:'2px 5px',fontSize:'0.56rem',color:'#f0c040',pointerEvents:'none'}}>←{gameState.boardLeft}</div>
+                    <div style={{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',background:'rgba(0,0,0,0.55)',borderRadius:5,padding:'2px 5px',fontSize:'0.56rem',color:'#f0c040',pointerEvents:'none'}}>{gameState.boardRight}→</div>
                   </>
                 )}
               </div>
-
-              {/* PEMAIN KANAN */}
-              <div style={{
-                width:70, display:'flex', flexDirection:'column',
-                alignItems:'center', justifyContent:'center', gap:4,
-                flexShrink:0, padding:'0 4px',
-              }}>
-                <Avatar player={dp(3)} isActive={ia(3)} handCount={hc(3)} coins={pc(3)} isMe={false} size={44} />
-                {dp(3) && (
-                  <div style={{display:'flex',flexDirection:'column',gap:2}}>
-                    {Array.from({length:Math.min(hc(3),5)}).map((_,i)=><CardBack key={i} horiz={false} small/>)}
-                  </div>
-                )}
-              </div>
             </div>
 
-            {/* ── PEMAIN SAYA (bawah) ── */}
+            {/* Avatar saya — bawah tengah */}
             <div style={{
               display:'flex',flexDirection:'column',alignItems:'center',
-              padding:'4px 8px 10px', flexShrink:0,
+              padding:'3px 0 2px',flexShrink:0,
             }}>
-              <Avatar player={dp(0)} isActive={isMyTurn} handCount={myHand.length} coins={pc(0)} isMe={true} size={48} />
-              <div style={{
-                display:'flex', gap:4, alignItems:'flex-end',
-                overflowX:'auto', padding:'6px 4px 0',
-                maxWidth:'100%', flexWrap:'nowrap',
-              }}>
-                {myHand.map(tile=>(
-                  <HandCard
-                    key={tile.id}
-                    tile={tile}
-                    selected={selected?.id===tile.id}
-                    valid={!!validMoves.find(t=>t.id===tile.id)}
-                    myTurn={isMyTurn}
-                    onClick={handleSelect}
-                    onDragStart={(e,t)=>{dragRef.current=t;setSelected(t)}}
-                    onDragEnd={()=>{dragRef.current=null}}
-                  />
-                ))}
-              </div>
+              <Avatar player={dp(0)} isActive={isMyTurn} handCount={myHand.length} coins={pc(0)} isMe={true} size={48}/>
             </div>
 
-          </div>{/* end brown table */}
-        </div>{/* end meja area */}
+          </div>{/* end kolom tengah */}
 
-        {/* ── MENU DROPDOWN ── */}
-        {menuOpen && (
+          {/* KOLOM KANAN — avatar kanan */}
           <div style={{
-            position:'fixed',top:56,left:0,
-            background:'rgba(6,16,10,0.97)',
-            border:'1px solid rgba(212,160,23,0.3)',
-            borderRadius:'0 12px 12px 0',
-            padding:8, zIndex:60, minWidth:170,
-            boxShadow:'4px 4px 20px rgba(0,0,0,0.6)',
-            animation:'slideDown 0.15s ease',
+            width:68, flexShrink:0,
+            display:'flex',flexDirection:'column',
+            alignItems:'center',justifyContent:'center',
+            gap:4,
           }}>
-            {[
-              {icon:soundOn?'🔊':'🔇', label:soundOn?'Suara: ON':'Suara: OFF', action:()=>{const n=!soundOn;setSoundOn(n);soundRef.current=n}},
-              {icon:'💬', label:'Chat', action:()=>{setChatOpen(o=>!o);setMenuOpen(false)}},
-              {icon:'←', label:'Kembali ke Lobby', action:backToLobby, danger:true},
-            ].map((item,i)=>(
-              <button key={i} onClick={()=>{item.action();if(!item.label.includes('Chat'))setMenuOpen(false)}} style={{
-                display:'flex',alignItems:'center',gap:10,
-                width:'100%',background:'transparent',border:'none',
-                borderRadius:8,padding:'9px 12px',
-                color:item.danger?'#e74c3c':'#f5f0e8',
-                cursor:'pointer',fontSize:'0.82rem',letterSpacing:0.5,
-              }}>
-                <span>{item.icon}</span><span>{item.label}</span>
-              </button>
+            <Avatar player={dp(3)} isActive={ia(3)} handCount={hc(3)} coins={pc(3)} isMe={false} size={44}/>
+            {dp(3) && (
+              <div style={{display:'flex',flexDirection:'column',gap:2}}>
+                {Array.from({length:Math.min(hc(3),5)}).map((_,i)=><CardBack key={i} horiz={false}/>)}
+              </div>
+            )}
+          </div>
+
+        </div>{/* end row 2 */}
+
+        {/* ══ ROW 3: KARTU SAYA + CHAT BUTTON ══ */}
+        <div style={{
+          background:'rgba(0,0,0,0.3)',
+          borderTop:'1px solid rgba(255,255,255,0.06)',
+          padding:'6px 8px 10px',
+          position:'relative',
+        }}>
+          {/* Kartu tangan saya */}
+          <div style={{
+            display:'flex',gap:4,alignItems:'flex-end',
+            overflowX:'auto',
+            padding:'4px 8px 0',
+            maxWidth:'calc(100% - 56px)', // beri ruang untuk tombol chat
+            flexWrap:'nowrap',
+          }}>
+            {myHand.map(tile=>(
+              <HandCard
+                key={tile.id}
+                tile={tile}
+                selected={selected?.id===tile.id}
+                valid={!!validMoves.find(t=>t.id===tile.id)}
+                myTurn={isMyTurn}
+                onClick={handleSelect}
+                onDragStart={(e,t)=>{dragRef.current=t;setSelected(t)}}
+                onDragEnd={()=>{dragRef.current=null}}
+              />
             ))}
           </div>
-        )}
 
-        {/* ── SIDE SELECTOR ── */}
-        {showSide&&pendingTile&&(
-          <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:100,flexDirection:'column',gap:16}}>
-            <div style={{color:'#f0c040',fontSize:'0.75rem',letterSpacing:3}}>TARUH DI SISI MANA?</div>
-            <div style={{display:'flex',gap:20,alignItems:'center'}}>
-              <button onClick={()=>execPlay(pendingTile,'left',gsRef.current,myIdxRef.current,roomRef.current)} style={sideStyle}>
-                ← KIRI<br/><span style={{fontSize:'1.4rem',color:'#f0c040'}}>{gameState.boardLeft}</span>
-              </button>
-              <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8}}>
-                <div style={{width:44,height:80,background:'linear-gradient(160deg,#fff,#f5f0e0)',borderRadius:7,border:'2px solid #f0c040',display:'flex',flexDirection:'column',padding:'3px 2px',boxShadow:'0 0 0 4px rgba(240,192,64,0.2)'}}>
-                  <div style={{flex:1}}><PipFace val={pendingTile.left}/></div>
-                  <div style={{height:1.5,background:'#aaa',margin:'0 4px'}}/>
-                  <div style={{flex:1}}><PipFace val={pendingTile.right}/></div>
-                </div>
-                <button onClick={()=>{setShowSide(false);setPendingTile(null)}} style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',fontSize:'0.72rem'}}>Batal</button>
+          {/* 💬 Tombol chat pojok kanan bawah */}
+          <button
+            onClick={()=>setChatOpen(o=>!o)}
+            style={{
+              position:'absolute',right:12,bottom:10,
+              width:46,height:46,borderRadius:'50%',
+              background:'linear-gradient(135deg,#27ae60,#1e8449)',
+              border:'2px solid rgba(255,255,255,0.2)',
+              color:'#fff',fontSize:'1.2rem',cursor:'pointer',
+              display:'flex',alignItems:'center',justifyContent:'center',
+              boxShadow:'0 4px 14px rgba(0,0,0,0.4)',
+              zIndex:20,
+            }}
+          >
+            💬
+          </button>
+
+        </div>{/* end row 3 */}
+
+      </div>{/* end full screen grid */}
+
+      {/* ── Side selector ── */}
+      {showSide&&pendingTile&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:200,flexDirection:'column',gap:16}}>
+          <div style={{color:'#f0c040',fontSize:'0.75rem',letterSpacing:3}}>TARUH DI SISI MANA?</div>
+          <div style={{display:'flex',gap:20,alignItems:'center'}}>
+            <button onClick={()=>execPlay(pendingTile,'left',gsRef.current,myIdxRef.current,roomRef.current)} style={sideStyle}>
+              ← KIRI<br/><span style={{fontSize:'1.4rem',color:'#f0c040'}}>{gameState.boardLeft}</span>
+            </button>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8}}>
+              <div style={{width:44,height:80,background:'linear-gradient(160deg,#fff,#f5f0e0)',borderRadius:7,border:'2px solid #f0c040',display:'flex',flexDirection:'column',padding:'3px 2px',boxShadow:'0 0 0 4px rgba(240,192,64,0.2)'}}>
+                <div style={{flex:1}}><PipFace val={pendingTile.left}/></div>
+                <div style={{height:1.5,background:'#aaa',margin:'0 4px'}}/>
+                <div style={{flex:1}}><PipFace val={pendingTile.right}/></div>
               </div>
-              <button onClick={()=>execPlay(pendingTile,'right',gsRef.current,myIdxRef.current,roomRef.current)} style={sideStyle}>
-                KANAN →<br/><span style={{fontSize:'1.4rem',color:'#f0c040'}}>{gameState.boardRight}</span>
-              </button>
+              <button onClick={()=>{setShowSide(false);setPendingTile(null)}} style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',fontSize:'0.72rem'}}>Batal</button>
             </div>
+            <button onClick={()=>execPlay(pendingTile,'right',gsRef.current,myIdxRef.current,roomRef.current)} style={sideStyle}>
+              KANAN →<br/><span style={{fontSize:'1.4rem',color:'#f0c040'}}>{gameState.boardRight}</span>
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ── GAME OVER ── */}
-        {isOver&&(
-          <div className="modal-overlay">
-            <div className="modal">
-              <div style={{fontSize:'3rem',marginBottom:10}}>{iWin?'🏆':'😔'}</div>
-              <h2 className="modal-title">{iWin?'MENANG!':'KALAH'}</h2>
-              <p className="modal-subtitle">{gameState.blocked?'Permainan buntu! ':''}{winnerP?.username} menang!</p>
-              <div style={{
-                background:iWin?'rgba(39,174,96,0.15)':'rgba(192,57,43,0.15)',
-                border:`1px solid ${iWin?'rgba(39,174,96,0.4)':'rgba(192,57,43,0.4)'}`,
-                borderRadius:10,padding:'10px 20px',marginBottom:12,
-                fontSize:'0.9rem',fontWeight:700,
-                color:iWin?'#27ae60':'#e74c3c',
-              }}>
-                {iWin?`+${formatCoins(100000*(players.length-1))} 🪙`:`-${formatCoins(100000)} 🪙`}
-              </div>
-              <div style={{fontSize:'0.72rem',color:'rgba(245,240,232,0.5)',marginBottom:18}}>
-                Koin kamu: 🪙 {formatCoins(profiles[user?.id]?.coins??0)}
-              </div>
-              {players[0]?.id===user?.id&&(
-                <button className="btn-primary" onClick={resetGame} style={{marginBottom:10}}>Main Lagi</button>
-              )}
-              <button className="btn-secondary" onClick={backToLobby}>Kembali ke Lobby</button>
+      {/* ── Game over ── */}
+      {isOver&&(
+        <div className="modal-overlay" style={{zIndex:200}}>
+          <div className="modal">
+            <div style={{fontSize:'3rem',marginBottom:10}}>{iWin?'🏆':'😔'}</div>
+            <h2 className="modal-title">{iWin?'MENANG!':'KALAH'}</h2>
+            <p className="modal-subtitle">{gameState.blocked?'Permainan buntu! ':''}{winnerP?.username} menang!</p>
+            <div style={{
+              background:iWin?'rgba(39,174,96,0.15)':'rgba(192,57,43,0.15)',
+              border:`1px solid ${iWin?'rgba(39,174,96,0.4)':'rgba(192,57,43,0.4)'}`,
+              borderRadius:10,padding:'10px 20px',marginBottom:12,
+              fontSize:'0.9rem',fontWeight:700,
+              color:iWin?'#27ae60':'#e74c3c',
+            }}>
+              {iWin?`+${formatCoins(100000*(players.length-1))} 🪙`:`-${formatCoins(100000)} 🪙`}
             </div>
+            <div style={{fontSize:'0.72rem',color:'rgba(245,240,232,0.5)',marginBottom:18}}>
+              Koin kamu: 🪙 {formatCoins(profiles[user?.id]?.coins??0)}
+            </div>
+            {players[0]?.id===user?.id&&(
+              <button className="btn-primary" onClick={resetGame} style={{marginBottom:10}}>Main Lagi</button>
+            )}
+            <button className="btn-secondary" onClick={backToLobby}>Kembali ke Lobby</button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ── CHAT ── */}
-        <ChatPanel roomId={roomId} user={user} players={players} forceOpen={chatOpen} onClose={()=>setChatOpen(false)} />
+      {/* ── Chat — pojok kanan bawah ── */}
+      <ChatPanel
+        roomId={roomId} user={user} players={players}
+        forceOpen={chatOpen} onClose={()=>setChatOpen(false)}
+      />
 
-        {/* ── NOTIF ── */}
-        {notif&&<div className="notification">{notif}</div>}
-      </div>
+      {/* ── Notifikasi ── */}
+      {notif&&<div className="notification" style={{zIndex:300}}>{notif}</div>}
 
       <style>{`
         @keyframes pulse-ring {
