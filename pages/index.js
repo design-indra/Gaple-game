@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     setLoading(true)
     // Use email format: username@gaple.local for Supabase Auth
-    const email = `${username.trim().toLowerCase()}@gaple.local`
+    const email = `${username.trim().toLowerCase()}@gaple-game.com`
 
     try {
       if (mode === 'register') {
