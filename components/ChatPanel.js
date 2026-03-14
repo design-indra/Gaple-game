@@ -5,12 +5,17 @@ import { playChatMessage, resumeAudio } from '../lib/sounds'
 // Emoji reactions cepat
 const QUICK_EMOJIS = ['👏', '😂', '🔥', '😤', '🎴', '👍', '💪', '🤣']
 
-export default function ChatPanel({ roomId, user, players }) {
+export default function ChatPanel({ roomId, user, players, forceOpen, onClose }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const [unread, setUnread] = useState(0)
   const [muted, setMuted] = useState(false)
+
+  // Sync with forceOpen from parent
+  useEffect(() => {
+    if (forceOpen !== undefined) setIsOpen(forceOpen)
+  }, [forceOpen])
   const bottomRef = useRef(null)
   const inputRef = useRef(null)
 
